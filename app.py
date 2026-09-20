@@ -1,5 +1,7 @@
 from pathlib import Path
 import random
+import re
+import uuid
 
 import joblib
 import pandas as pd
@@ -8,8 +10,6 @@ import streamlit as st
 from modules.warning_rules import find_warning_signs, education_advice
 from modules.storage import (
     init_db,
-    normalize_student_code,
-    valid_student_code,
     save_quiz_attempt,
     save_message_check,
     student_summary,
@@ -18,11 +18,10 @@ from modules.storage import (
     export_student_attempts,
 )
 
-APP_VERSION = "Student v1.0"
+APP_VERSION = "Student v1.1 – Dùng ngay"
 ROOT = Path(__file__).resolve().parent
 MODEL_PATH = ROOT / "model" / "classifier.joblib"
 QUIZ_PATH = ROOT / "data" / "situations.csv"
-CODES_PATH = ROOT / "data" / "student_codes.csv"
 
 st.set_page_config(
     page_title="Cảnh giác Online",
@@ -71,70 +70,61 @@ def load_quiz():
     return df
 
 
-@st.cache_data
-def load_allowed_codes():
-    if not CODES_PATH.exists():
-        return set()
-    df = pd.read_csv(CODES_PATH)
-    if "student_code" not in df.columns:
-        return set()
-    if "active" in df.columns:
-        active = pd.to_numeric(df["active"], errors="coerce").fillna(0).astype(int) == 1
-        df = df[active]
-    return {normalize_student_code(v) for v in df["student_code"].astype(str)}
+def get_anonymous_session_id() -> str:
+    """Tạo mã ẩn danh tự động; học sinh không phải nhập mã.
+
+    Mã được giữ trong query parameter để khi tải lại trang trên cùng đường dẫn,
+    tiến độ của phiên vẫn có thể được truy xuất. Không chứa họ tên hay dữ liệu cá nhân.
+    """
+    try:
+        raw = st.query_params.get("u", "")
+        if isinstance(raw, list):
+            raw = raw[0] if raw else ""
+    except Exception:
+        raw = ""
+
+    raw = str(raw or "").strip().upper()
+    if re.fullmatch(r"ANON-[A-F0-9]{10}", raw):
+        return raw
+
+    anon_id = f"ANON-{uuid.uuid4().hex[:10].upper()}"
+    try:
+        st.query_params["u"] = anon_id
+    except Exception:
+        pass
+    return anon_id
 
 
-def code_is_allowed(code: str) -> bool:
-    codes = load_allowed_codes()
-    return valid_student_code(code) and (not codes or code in codes)
-
-
-if "student_code" not in st.session_state:
-    st.session_state.student_code = ""
+student_code = get_anonymous_session_id()
 
 st.title("🛡️ CẢNH GIÁC ONLINE")
-st.caption("Học cách nhận diện thông điệp đáng ngờ và bảo vệ mình trên môi trường số")
-
-student_code = st.session_state.student_code
-
-if not student_code:
-    st.markdown(
-        "<div class='cg-hero'><b>Chào em!</b><br>Nhập mã học sinh do giáo viên cấp để bắt đầu. Ứng dụng không yêu cầu họ tên.</div>",
-        unsafe_allow_html=True,
-    )
-    raw_code = st.text_input(
-        "Mã học sinh",
-        placeholder="Ví dụ: HS001",
-        max_chars=24,
-    )
-    cleaned_code = normalize_student_code(raw_code)
-    if cleaned_code and cleaned_code != raw_code:
-        st.caption(f"Mã sẽ được chuẩn hóa thành: {cleaned_code}")
-    if st.button("BẮT ĐẦU", type="primary"):
-        if code_is_allowed(cleaned_code):
-            st.session_state.student_code = cleaned_code
-            st.rerun()
-        else:
-            st.error("Mã chưa đúng hoặc chưa được kích hoạt. Hãy kiểm tra lại mã giáo viên đã cấp.")
-
-    st.markdown("### Lưu ý an toàn")
-    st.write("• Không nhập OTP thật, mật khẩu, số thẻ, số tài khoản hoặc thông tin bí mật vào ứng dụng.")
-    st.write("• Khi kiểm tra thông điệp, ứng dụng không lưu nội dung em nhập; chỉ lưu kết quả phân tích để theo dõi học tập.")
-    st.write("• Kết quả chỉ có tính hỗ trợ học tập. Khi nghi ngờ, hãy hỏi cha mẹ, giáo viên hoặc kiểm tra qua kênh chính thức.")
-    st.stop()
+st.caption("Mở là dùng ngay – học cách nhận diện thông điệp đáng ngờ và bảo vệ mình trên môi trường số")
 
 st.markdown(
-    f"<div class='cg-note'>Mã học sinh: <b>{student_code}</b> • {APP_VERSION}</div>",
+    "<div class='cg-hero'><b>Chào em!</b><br>Không cần đăng nhập hay nhập mã học sinh. "
+    "Ứng dụng tự tạo một mã ẩn danh để ghi nhớ tiến bộ của phiên học.</div>",
     unsafe_allow_html=True,
 )
 
-with st.expander("Đổi mã học sinh"):
-    st.caption("Chỉ đổi mã khi giáo viên yêu cầu.")
-    if st.button("ĐỔI MÃ"):
-        st.session_state.student_code = ""
+with st.expander("ℹ️ Quyền riêng tư & phiên học"):
+    st.write("• Ứng dụng không yêu cầu họ tên, số điện thoại hay email.")
+    st.write("• Không nhập OTP thật, mật khẩu, số thẻ, số tài khoản hoặc thông tin bí mật.")
+    st.write("• Nội dung tin nhắn em kiểm tra không được lưu; chỉ lưu kết quả phân tích và kết quả luyện tập.")
+    st.write("• Mã phiên ẩn danh được tạo tự động để phục vụ chức năng Tiến bộ của tôi.")
+    st.caption(f"Mã phiên hiện tại: {student_code}")
+    if st.button("TẠO PHIÊN MỚI", help="Dùng khi muốn bắt đầu một tiến trình học mới trên thiết bị này"):
+        try:
+            st.query_params["u"] = f"ANON-{uuid.uuid4().hex[:10].upper()}"
+        except Exception:
+            pass
         for key in ["quiz_index", "quiz_checked", "quiz_choice", "quiz_saved_key"]:
             st.session_state.pop(key, None)
         st.rerun()
+
+st.markdown(
+    f"<div class='cg-note'>Phiên học ẩn danh • {APP_VERSION}</div>",
+    unsafe_allow_html=True,
+)
 
 page = st.selectbox(
     "Chức năng",

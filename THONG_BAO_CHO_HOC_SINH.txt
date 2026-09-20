@@ -1,8 +1,8 @@
-CẢNH GIÁC ONLINE - AN TOÀN SỐ CHO HỌC SINH
+CẢNH GIÁC ONLINE
 
-Các em truy cập đường link/QR do giáo viên cung cấp, nhập đúng mã học sinh và thực hiện các hoạt động trên ứng dụng.
+Em chỉ cần quét QR hoặc mở đường link là sử dụng ngay, không cần tài khoản và không cần mã học sinh.
 
-Lưu ý:
-- Không chia sẻ mã học sinh cho bạn khác.
-- Không nhập OTP thật, mật khẩu, số tài khoản, số thẻ hoặc thông tin bí mật vào ứng dụng.
-- Khi gặp tin nhắn đáng ngờ ngoài đời thực, hãy dừng lại, kiểm tra, xác minh và trao đổi với cha mẹ hoặc giáo viên trước khi hành động.
+Hãy nhớ:
+- Không nhập OTP thật, mật khẩu, số thẻ, số tài khoản hoặc thông tin bí mật.
+- Kết quả của ứng dụng chỉ hỗ trợ học tập.
+- Khi gặp nội dung đáng ngờ, hãy kiểm tra qua nguồn chính thức và hỏi cha mẹ hoặc giáo viên nếu cần.

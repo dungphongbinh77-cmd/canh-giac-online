@@ -1,14 +1,12 @@
-# CHECKLIST TRƯỚC KHI PHÁT LINK CHO HỌC SINH
+# CHECKLIST PHÁT HÀNH v1.1
 
-- [ ] App mở được bằng 4G/5G và Wi-Fi trên điện thoại.
-- [ ] Mã HS001 đăng nhập được.
-- [ ] Mã không có trong `student_codes.csv` bị từ chối.
-- [ ] Phân tích thông điệp hoạt động.
-- [ ] Không có trang Giáo viên hoặc Nghiên cứu trong menu học sinh.
-- [ ] Làm câu Thử thách chỉ ghi một lượt khi bấm kiểm tra nhiều lần.
-- [ ] Trang Tiến bộ hiển thị dữ liệu mới.
-- [ ] Google Sheet nhận dữ liệu `quiz_attempts`.
-- [ ] Google Sheet nhận dữ liệu `message_checks`.
-- [ ] Nội dung tin nhắn gốc không xuất hiện trong Google Sheet.
-- [ ] Không có `secrets.toml` hoặc JSON khóa bí mật trên GitHub.
-- [ ] QR trỏ đúng URL bản học sinh chính thức.
+- [ ] `python tools/check_release.py` báo `SAN SANG PHAT HANH`.
+- [ ] App mở trực tiếp, không yêu cầu đăng nhập hay mã học sinh.
+- [ ] Tự tạo mã phiên ẩn danh dạng `ANON-XXXXXXXXXX`.
+- [ ] Mô hình phân tích hoạt động.
+- [ ] Thử thách hoạt động và lưu kết quả.
+- [ ] Trang Tiến bộ hiển thị đúng dữ liệu của phiên.
+- [ ] Nội dung tin nhắn kiểm tra không được lưu.
+- [ ] Google Sheets ghi dữ liệu bằng mã phiên ẩn danh.
+- [ ] Link phát cho học sinh là link gốc, không kèm `?u=ANON-...`.
+- [ ] QR được tạo từ link gốc của app.

@@ -9,13 +9,12 @@ required = [
     ROOT / 'requirements.txt',
     ROOT / 'model' / 'classifier.joblib',
     ROOT / 'data' / 'situations.csv',
-    ROOT / 'data' / 'student_codes.csv',
     ROOT / 'modules' / 'storage.py',
     ROOT / 'modules' / 'warning_rules.py',
 ]
 
 errors = []
-print('=== KIEM TRA BAN PHAT HANH HOC SINH ===')
+print('=== KIEM TRA BAN PHAT HANH HOC SINH v1.1 ===')
 for path in required:
     ok = path.exists()
     print(('OK   ' if ok else 'THIEU'), path.relative_to(ROOT))
@@ -24,13 +23,18 @@ for path in required:
 
 if not errors:
     quiz = pd.read_csv(ROOT / 'data' / 'situations.csv')
-    codes = pd.read_csv(ROOT / 'data' / 'student_codes.csv')
     print(f'OK   So cau thu thach: {len(quiz)}')
-    print(f'OK   So ma hoc sinh: {len(codes)}')
-    if quiz['question_id'].duplicated().any():
+    if 'question_id' in quiz.columns and quiz['question_id'].duplicated().any():
         errors.append('question_id bi trung')
-    if codes['student_code'].duplicated().any():
-        errors.append('student_code bi trung')
+
+    app_text = (ROOT / 'app.py').read_text(encoding='utf-8')
+    forbidden = ['Nhập mã học sinh do giáo viên cấp', 'student_codes.csv', 'load_allowed_codes']
+    for text in forbidden:
+        if text in app_text:
+            errors.append(f'Con noi dung cu: {text}')
+
+    if 'get_anonymous_session_id' not in app_text or 'ANON-' not in app_text:
+        errors.append('Chua co co che ma phien an danh tu dong')
 
     model = joblib.load(ROOT / 'model' / 'classifier.joblib')
     samples = [
