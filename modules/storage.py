@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import re
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "data" / "progress.db"
+APP_TIMEZONE = "Asia/Ho_Chi_Minh"
 
 QUIZ_HEADERS = [
     "student_code", "question_id", "category", "selected_answer",
@@ -20,7 +22,8 @@ CHECK_HEADERS = [
 
 
 def _now() -> str:
-    return datetime.now().isoformat(timespec="seconds")
+    """Return Vietnam local time explicitly, independent of server/device timezone."""
+    return datetime.now(ZoneInfo(APP_TIMEZONE)).isoformat(sep=" ", timespec="seconds")
 
 
 def normalize_student_code(raw: str) -> str:

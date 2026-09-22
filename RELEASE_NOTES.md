@@ -1,3 +1,12 @@
+# RELEASE NOTES v1.2 - TIMEZONE FIX
+
+- Sửa lỗi lệch thời gian giữa điện thoại/máy tính và Google Sheets.
+- Chuẩn hóa thời gian theo `Asia/Ho_Chi_Minh` (UTC+7).
+- `created_at` mới có offset `+07:00`.
+- Thêm `tools/check_time.py`.
+- Thêm `tools/fix_legacy_timestamps.py` để sửa dữ liệu cũ sau khi sao lưu.
+- Thêm `TIMEZONE_FIX.md`.
+
 # RELEASE NOTES - STUDENT v1.1 DÙNG NGAY
 
 ## Thay đổi chính so với v1.0
